@@ -18,7 +18,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from dependencies.sprint import *
 from definitions.functions import *
 from definitions.scraper import *
-from twitter_API import get_tweet_interaction_users
+from twitter_API import Get_Likes,Get_Retweet
 #! INTERNAL STUFF BELOW DO NOT MODIFY
 from itertools import zip_longest
 
@@ -71,26 +71,26 @@ def homes():
 
 @app.route('/download_csv')
 def download_csv():
-    global data_Twitter
-    with open('data.csv', 'a', newline='',encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=data_Twitter.keys())
+    global Main_Records
+    with open('user_likes_retweets.csv', 'a', newline='',encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=Main_Records.keys())
         writer.writeheader()
-        writer.writerow(data_Twitter)
-    return send_file('data.csv', as_attachment=True)
+        writer.writerow(Main_Records)
+    return send_file('user_likes_retweets.csv', as_attachment=True)
 
 @app.route('/download_json')
 def download_json():
-    global data_Twitter
+    global Main_Records
     print("############################################")
-    print(data_Twitter)
+    print(Main_Records)
     print("############################################")
-    with open('data.json', 'a') as jsonfile:
-        json.dump(data_Twitter, jsonfile, indent=4)
-    return send_file('data.json', as_attachment=True)
+    with open('user_likes_retweets.json', 'a') as jsonfile:
+        json.dump(Main_Records, jsonfile, indent=4)
+    return send_file('user_likes_retweets.json', as_attachment=True)
 
 @app.route('/searchSpaces', methods=['GET', 'POST'])
 def search_spaces():
-    global search_term, spacedata_json_file, user_topic_descriptions_json_file,data_Twitter
+    global search_term, spacedata_json_file, user_topic_descriptions_json_file,Main_Records
 
     #* Getting Params
     quick_mode = request.args.get('quick_mode')
@@ -137,58 +137,53 @@ def search_spaces():
 
                 data = response.json()
                 print("#########################################################################")
-
-
-                Tweet = [[ i.get('id'),i.get('pinned_tweet_id')] for i in data.get('includes').get('users') if i.get('id') is not None and i.get('pinned_tweet_id') is not None]
+                Tweet = [[ i.get('id'),i.get('pinned_tweet_id'),i.get('created_at')] for i in data.get('includes').get('users') if i.get('id') is not None and i.get('pinned_tweet_id') is not None]
                 for Tweets in Tweet:
                     User_Id = Tweets[0]
                     Tweet_Id = int(Tweets[1])
-                    
-                    liking_users, retweeted_by_users = get_tweet_interaction_users(Tweet_Id)
-                    Like_users = liking_users.get('data')
-                    Retweet_users = retweeted_by_users.get('data')
+                    Date_Time = Tweets[2]
+                    date_str = str(Date_Time).split("T")[0].replace('-','/')
+                    Time = str(Date_Time).split("T")[1].split(".")[0]
+                    date_obj = datetime.strptime(date_str, '%Y/%m/%d')
 
-                    if liking_users.get('status') == 429:
-                        print("limit exceed...........")
-                    if Retweet_users.get('status') == 429:
-                        print("limit exceed...........")
-                    elif liking_users.get('status') == 503:
-                        print("Service Unavailable")
-                    else:
-                        print("yes")
+                    # Format the date object to the desired format '09/04/2024'
+                    Date = date_obj.strftime('%m/%d/%Y')
+                    Like_users = Get_Likes(Tweet_Id)
+                    Retweet_users = Get_Retweet(Tweet_Id)
+                    for likes, tweet in zip_longest(Like_users, Retweet_users):
+                        print("################### : ",likes,"## likes  ###################  tweet   ##", tweet," : ###################")
                         data_Twitter = dict()
-                        print(User_Id)
-                        print(Like_users,"++++++")
-                        print(retweeted_by_users,"=====")
-                        for likes, tweet in zip_longest(Like_users, Retweet_users):
-                            print(likes,"+++++++++++++++++++++", tweet)
+                        data_Twitter['tweet_id'] = Tweet_Id 
+                        data_Twitter['user_id'] =  User_Id
+                        # data_Twitter['tweet_text'] = 
+                        data_Twitter['date'] = Date
+                        data_Twitter['time'] = Time
 
-                        #     # # data_Twitter = user_data  # Assign value to data_Twitter
-                        #     # # print(data_Twitter)
-                            data_Twitter['tweet_id'] = Tweet_Id 
-                            data_Twitter['user_id'] =  User_Id
-                            # data_Twitter['tweet_text'] = 
-                            # data_Twitter['date'] = 
-                            # data_Twitter['time'] = 
-                            
-                            data_Twitter['Likedby_id'] = likes.get('id')
-                            data_Twitter['Likedby_username'] = likes.get('name')
-                            data_Twitter['Likedby_name'] = likes.get('username')
-                            
-                            data_Twitter['tweetedby_name'] = tweet.get('name')
-                            data_Twitter['tweetedby_id'] = tweet.get('id')
-                            data_Twitter['tweetedby_username'] = tweet.get('username')
-                            Main_Records = data_Twitter
-                            
-                            print(Main_Records,"+++++++++++++")
-                       
-                            # # then I'll have to pay another initiation fee...
-                            # # download_json()
-                            # # download_csv()
-                   
-                    # print(retweeted_by_users,"=====================")
+                        if likes is not None:
+                            data_Twitter['Likedby_id'] = likes.get('Likedby_id','')
+                            data_Twitter['Likedby_username'] = likes.get('Likedby_username','')
+                            data_Twitter['Likedby_name'] = likes.get('Likedby_name','')
+                        else:
+                            data_Twitter['Likedby_id'] = ''
+                            data_Twitter['Likedby_username'] = ''
+                            data_Twitter['Likedby_name'] = ''
+                        if tweet is not None:
+                            data_Twitter['tweetedby_name'] = tweet.get('tweetedby_name','')
+                            data_Twitter['tweetedby_id'] = tweet.get('tweetedby_id','')
+                            data_Twitter['tweetedby_username'] = tweet.get('tweetedby_username','')
+                        else:
+                            # Handle the case where tweet is None
+                            data_Twitter['tweetedby_name'] = '' 
+                            data_Twitter['tweetedby_id'] = ''
+                            data_Twitter['tweetedby_username'] = ''
+
+                        Main_Records = data_Twitter
+                        # print("\n")
+                        # print("********************************************")
+                        # print(Main_Records,"+++++++++++++")
+                        # print("\n")
+                        # print("********************************************")
                 print("#########################################################################")
-
                 #* Detect errors 
                 if "errors" in data:
                     return render_template('index.html', error_message=str(data["errors"][0]["detail"]), search_term=search_term)
