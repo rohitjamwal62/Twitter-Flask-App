@@ -57,7 +57,7 @@ app.secret_key = secrets.token_hex(24)
 scheduler = BackgroundScheduler()
 scheduler.start()
 
-data_Twitter = {}
+Main_Records = list()
 @app.route('/',)
 def homes():
     """
@@ -68,22 +68,19 @@ def homes():
     """
     return render_template('index.html')
 
-
 @app.route('/download_csv')
 def download_csv():
     global Main_Records
-    with open('user_likes_retweets.csv', 'a', newline='',encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=Main_Records.keys())
+    csv_header = ['tweet_id', 'user_id', 'date', 'time', 'Likedby_id', 'Likedby_username', 'Likedby_name', 'tweetedby_name', 'tweetedby_id', 'tweetedby_username']
+    with open('user_likes_retweets.csv', 'a', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_header)
         writer.writeheader()
-        writer.writerow(Main_Records)
+        writer.writerows(Main_Records)
     return send_file('user_likes_retweets.csv', as_attachment=True)
 
 @app.route('/download_json')
 def download_json():
     global Main_Records
-    print("############################################")
-    print(Main_Records)
-    print("############################################")
     with open('user_likes_retweets.json', 'a') as jsonfile:
         json.dump(Main_Records, jsonfile, indent=4)
     return send_file('user_likes_retweets.json', as_attachment=True)
@@ -91,12 +88,10 @@ def download_json():
 @app.route('/searchSpaces', methods=['GET', 'POST'])
 def search_spaces():
     global search_term, spacedata_json_file, user_topic_descriptions_json_file,Main_Records
-
     #* Getting Params
     quick_mode = request.args.get('quick_mode')
     search_by = request.args.get('by')
     search_term = request.form["search_term"]
-
     spacedata_json_file = os.path.join(OUTPUT_DIR, search_term, 'space_user_data.json')
     user_topic_descriptions_json_file = os.path.join(OUTPUT_DIR, search_term, 'user_topic_descriptions.json')
 
@@ -134,7 +129,7 @@ def search_spaces():
                 #create search_term directory inside OUTPUT_DIR
                 if not os.path.exists(os.path.join(OUTPUT_DIR,search_term)):
                     os.mkdir(os.path.join(OUTPUT_DIR,search_term))
-
+                    
                 data = response.json()
                 print("#########################################################################")
                 Tweet = [[ i.get('id'),i.get('pinned_tweet_id'),i.get('created_at')] for i in data.get('includes').get('users') if i.get('id') is not None and i.get('pinned_tweet_id') is not None]
@@ -145,13 +140,12 @@ def search_spaces():
                     date_str = str(Date_Time).split("T")[0].replace('-','/')
                     Time = str(Date_Time).split("T")[1].split(".")[0]
                     date_obj = datetime.strptime(date_str, '%Y/%m/%d')
-
                     # Format the date object to the desired format '09/04/2024'
                     Date = date_obj.strftime('%m/%d/%Y')
                     Like_users = Get_Likes(Tweet_Id)
                     Retweet_users = Get_Retweet(Tweet_Id)
                     for likes, tweet in zip_longest(Like_users, Retweet_users):
-                        print("################### : ",likes,"## likes  ###################  tweet   ##", tweet," : ###################")
+                        # print("################### : ",likes,"## likes  ###################  tweet   ##", tweet," : ###################")
                         data_Twitter = dict()
                         data_Twitter['tweet_id'] = Tweet_Id 
                         data_Twitter['user_id'] =  User_Id
@@ -176,13 +170,7 @@ def search_spaces():
                             data_Twitter['tweetedby_name'] = '' 
                             data_Twitter['tweetedby_id'] = ''
                             data_Twitter['tweetedby_username'] = ''
-
-                        Main_Records = data_Twitter
-                        # print("\n")
-                        # print("********************************************")
-                        # print(Main_Records,"+++++++++++++")
-                        # print("\n")
-                        # print("********************************************")
+                        Main_Records.append(data_Twitter)
                 print("#########################################################################")
                 #* Detect errors 
                 if "errors" in data:
