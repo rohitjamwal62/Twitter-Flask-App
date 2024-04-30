@@ -71,8 +71,11 @@ def homes():
 @app.route('/download_csv')
 def download_csv():
     global Main_Records
+    print("##########################")
+    print(Main_Records)
+    print("##########################")
     csv_header = ['tweet_id', 'user_id', 'date', 'time', 'Likedby_id', 'Likedby_username', 'Likedby_name', 'tweetedby_name', 'tweetedby_id', 'tweetedby_username']
-    with open('user_likes_retweets.csv', 'a', newline='', encoding='utf-8') as csvfile:
+    with open('user_likes_retweets.csv', 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_header)
         writer.writeheader()
         writer.writerows(Main_Records)
@@ -81,7 +84,7 @@ def download_csv():
 @app.route('/download_json')
 def download_json():
     global Main_Records
-    with open('user_likes_retweets.json', 'a') as jsonfile:
+    with open('user_likes_retweets.json', 'w') as jsonfile:
         json.dump(Main_Records, jsonfile, indent=4)
     return send_file('user_likes_retweets.json', as_attachment=True)
 
