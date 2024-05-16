@@ -17,7 +17,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from dependencies.sprint import *
 from definitions.functions import *
 from definitions.scraper import *
-from twitter_API import Get_Likes,Get_Retweet,Get_Tweet
+from twitter_API import Get_Likes,Get_Retweet
 #! INTERNAL STUFF BELOW DO NOT MODIFY
 from itertools import zip_longest
 
@@ -135,93 +135,48 @@ def search_spaces():
                 data = response.json()
                 
                 print("#########################################################################")
-                user_info = [[ i.get('id'),i.get('created_at')] for i in data.get('includes').get('users') if i.get('id') is not None]
-                for user in user_info:
-                    User_Id = user[0]
-                    Date_Time = user[1]
+                # rec = data.get('includes').get('users')
+                # for i in rec:
+                #     print(i)
+                Tweet = [[ i.get('id'),i.get('pinned_tweet_id'),i.get('created_at')] for i in data.get('includes').get('users') if i.get('id') is not None and i.get('pinned_tweet_id') is not None]
+                for Tweets in Tweet:
+                    User_Id = Tweets[0]
+                    Tweet_Id = int(Tweets[1])
+                    Date_Time = Tweets[2]
                     date_str = str(Date_Time).split("T")[0].replace('-','/')
                     Time = str(Date_Time).split("T")[1].split(".")[0]
                     date_obj = datetime.strptime(date_str, '%Y/%m/%d')
+                    # Format the date object to the desired format '09/04/2024'
                     Date = date_obj.strftime('%m/%d/%Y')
-                    Get_All_Tweets = Get_Tweet(User_Id)
-                    print("\n")
-                    if Get_All_Tweets != None:
-                        print("Find Tweets:")
-                        for twt in Get_All_Tweets:
-                            Tweet_Id = twt[0]
-                            tweet_Text = twt[1]
-                            Like_users = Get_Likes(Tweet_Id)
-                            Retweet_users = Get_Retweet(Tweet_Id)
-                            for likes, tweet in zip_longest(Like_users, Retweet_users):
-                                print("################### : ",likes,"## likes  ###################  tweet   ##", tweet," : ###################")
-                                data_Twitter = dict()
-                                data_Twitter['tweet_id'] = Tweet_Id 
-                                data_Twitter['user_id'] =  User_Id
-                                data_Twitter['tweet_text'] = tweet_Text
-                                data_Twitter['date'] = Date
-                                data_Twitter['time'] = Time
-                                if likes is not None:
-                                    data_Twitter['Likedby_id'] = likes.get('Likedby_id','')
-                                    data_Twitter['Likedby_username'] = likes.get('Likedby_username','')
-                                    data_Twitter['Likedby_name'] = likes.get('Likedby_name','')
-                                else:
-                                    data_Twitter['Likedby_id'] = ''
-                                    data_Twitter['Likedby_username'] = ''
-                                    data_Twitter['Likedby_name'] = ''
-                                if tweet is not None:
-                                    data_Twitter['tweetedby_name'] = tweet.get('tweetedby_name','')
-                                    data_Twitter['tweetedby_id'] = tweet.get('tweetedby_id','')
-                                    data_Twitter['tweetedby_username'] = tweet.get('tweetedby_username','')
-                                else:
-                                    # Handle the case where tweet is None
-                                    data_Twitter['tweetedby_name'] = '' 
-                                    data_Twitter['tweetedby_id'] = ''
-                                    data_Twitter['tweetedby_username'] = ''
-                                Main_Records.append(data_Twitter)
-                    print(Main_Records,"-------------------")
-                                
-                    print("\n")
+                    Like_users = Get_Likes(Tweet_Id)
+                    Retweet_users = Get_Retweet(Tweet_Id)
+                    for likes, tweet in zip_longest(Like_users, Retweet_users):
+                        print("################### : ",likes,"## likes  ###################  tweet   ##", tweet," : ###################")
+                        data_Twitter = dict()
+                        data_Twitter['tweet_id'] = Tweet_Id 
+                        data_Twitter['user_id'] =  User_Id
+                        # data_Twitter['tweet_text'] = 
+                        data_Twitter['date'] = Date
+                        data_Twitter['time'] = Time
 
-
-                # Tweet = [[ i.get('id'),i.get('pinned_tweet_id'),i.get('created_at')] for i in data.get('includes').get('users') if i.get('id') is not None and i.get('pinned_tweet_id') is not None]
-                # for Tweets in Tweet:
-                #     User_Id = Tweets[0]
-                #     Tweet_Id = int(Tweets[1])
-                #     Date_Time = Tweets[2]
-                #     date_str = str(Date_Time).split("T")[0].replace('-','/')
-                #     Time = str(Date_Time).split("T")[1].split(".")[0]
-                #     date_obj = datetime.strptime(date_str, '%Y/%m/%d')
-                #     # Format the date object to the desired format '09/04/2024'
-                #     Date = date_obj.strftime('%m/%d/%Y')
-                #     Like_users = Get_Likes(Tweet_Id)
-                #     Retweet_users = Get_Retweet(Tweet_Id)
-                #     for likes, tweet in zip_longest(Like_users, Retweet_users):
-                #         print("################### : ",likes,"## likes  ###################  tweet   ##", tweet," : ###################")
-                #         data_Twitter = dict()
-                #         data_Twitter['tweet_id'] = Tweet_Id 
-                #         data_Twitter['user_id'] =  User_Id
-                #         # data_Twitter['tweet_text'] = 
-                #         data_Twitter['date'] = Date
-                #         data_Twitter['time'] = Time
-
-                #         if likes is not None:
-                #             data_Twitter['Likedby_id'] = likes.get('Likedby_id','')
-                #             data_Twitter['Likedby_username'] = likes.get('Likedby_username','')
-                #             data_Twitter['Likedby_name'] = likes.get('Likedby_name','')
-                #         else:
-                #             data_Twitter['Likedby_id'] = ''
-                #             data_Twitter['Likedby_username'] = ''
-                #             data_Twitter['Likedby_name'] = ''
-                #         if tweet is not None:
-                #             data_Twitter['tweetedby_name'] = tweet.get('tweetedby_name','')
-                #             data_Twitter['tweetedby_id'] = tweet.get('tweetedby_id','')
-                #             data_Twitter['tweetedby_username'] = tweet.get('tweetedby_username','')
-                #         else:
-                #             # Handle the case where tweet is None
-                #             data_Twitter['tweetedby_name'] = '' 
-                #             data_Twitter['tweetedby_id'] = ''
-                #             data_Twitter['tweetedby_username'] = ''
-                #         Main_Records.append(data_Twitter)
+                        if likes is not None:
+                            data_Twitter['Likedby_id'] = likes.get('Likedby_id','')
+                            data_Twitter['Likedby_username'] = likes.get('Likedby_username','')
+                            data_Twitter['Likedby_name'] = likes.get('Likedby_name','')
+                        else:
+                            data_Twitter['Likedby_id'] = ''
+                            data_Twitter['Likedby_username'] = ''
+                            data_Twitter['Likedby_name'] = ''
+                        if tweet is not None:
+                            data_Twitter['tweetedby_name'] = tweet.get('tweetedby_name','')
+                            data_Twitter['tweetedby_id'] = tweet.get('tweetedby_id','')
+                            data_Twitter['tweetedby_username'] = tweet.get('tweetedby_username','')
+                        else:
+                            # Handle the case where tweet is None
+                            data_Twitter['tweetedby_name'] = '' 
+                            data_Twitter['tweetedby_id'] = ''
+                            data_Twitter['tweetedby_username'] = ''
+                        Main_Records.append(data_Twitter)
                 print("#########################################################################")
                 #* Detect errors 
                 if "errors" in data:

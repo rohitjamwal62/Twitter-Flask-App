@@ -281,35 +281,38 @@ def get_twitter_follows(usernames: list, max_refresh_times: int = 1):
                     with contextlib.suppress(Exception):
                         WebDriverWait(driver, 10).until(
                             EC.visibility_of_element_located((By.XPATH, '//div[@data-testid="cellInnerDiv"]')))
-                    for request in driver.requests:
-                        if data["request_regex"] in request.url and request.response:
-                            json_body = decode(request.response.body, request.response.headers.get('Content-Encoding', 'identity'))
-                            json_body = json.loads(json_body)
-                            for instruction in json_body["data"]["user"]["result"]["timeline"]["timeline"]["instructions"]:
-                                if instruction["type"] == "TimelineAddEntries":
-                                    json_body = instruction["entries"]
+                    try:
+                        for request in driver:
+                            if data["request_regex"] in request.url and request:
+                                json_body = decode(request.response.body, request.response.headers.get('Content-Encoding', 'identity'))
+                                json_body = json.loads(json_body)
+                                for instruction in json_body["data"]["user"]["result"]["timeline"]["timeline"]["instructions"]:
+                                    if instruction["type"] == "TimelineAddEntries":
+                                        json_body = instruction["entries"]
 
-                                if len(json_body) > 0:
-                                    new_body = []
-                                    for entry in json_body:
-                                        try:
-                                            rest_id = entry["content"]["itemContent"]["user_results"]["result"]["rest_id"]
-                                            user_name = entry["content"]["itemContent"]["user_results"]["result"]["legacy"]["screen_name"]
-                                            new_body.append(
-                                                {
-                                                    "id": rest_id,
-                                                    "username":user_name
-                                                    }
-                                                )
-                                        except KeyError:
-                                            continue
-                                        except TypeError:
-                                            continue
+                                    if len(json_body) > 0:
+                                        new_body = []
+                                        for entry in json_body:
+                                            try:
+                                                rest_id = entry["content"]["itemContent"]["user_results"]["result"]["rest_id"]
+                                                user_name = entry["content"]["itemContent"]["user_results"]["result"]["legacy"]["screen_name"]
+                                                new_body.append(
+                                                    {
+                                                        "id": rest_id,
+                                                        "username":user_name
+                                                        }
+                                                    )
+                                            except KeyError:
+                                                continue
+                                            except TypeError:
+                                                continue
 
-                                    json_body = new_body
-                                    userdata[username][data["key"]].extend(json_body)
-                                    # Create a new list with duplicates removed
-                                    userdata[username][data["key"]] = list({v['id']:v for v in userdata[username][data["key"]]}.values())
+                                        json_body = new_body
+                                        userdata[username][data["key"]].extend(json_body)
+                                        # Create a new list with duplicates removed
+                                        userdata[username][data["key"]] = list({v['id']:v for v in userdata[username][data["key"]]}.values())
+                    except:
+                        pass
 
                             # sprint(f'{data["key"]} {len(userdata[username][data["key"]])}')
                     # sprint_wait()
@@ -323,4 +326,3 @@ def get_twitter_follows(usernames: list, max_refresh_times: int = 1):
         return None, False
 
     return userdata, True
-

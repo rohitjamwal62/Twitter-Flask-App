@@ -46,3 +46,12 @@ def Get_Retweet(tweet_id):
         context = {"tweetedby_id" : '',"tweetedby_name" : '',"tweetedby_username" : ''}
         store_list.append(context)
     return store_list
+
+def Get_Tweet(*args):
+    url = f"https://api.twitter.com/2/users/{args[0]}/tweets"
+    headers = {'Authorization': f'Bearer {BEARER_TOKEN}','Content-Type': 'application/json'}
+    response = requests.request("GET", url, headers=headers)
+    if response.status_code == 200:
+        records = json.loads(response.text).get('data')
+        data = [[rec.get('id'), rec.get('text')] for rec in records]
+        return data
