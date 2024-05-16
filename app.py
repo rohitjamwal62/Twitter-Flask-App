@@ -67,18 +67,43 @@ def homes():
     """
     return render_template('index.html')
 
+# @app.route('/download_csv')
+# def download_csv():
+#     global Main_Records
+#     print("##########################")
+#     print(Main_Records)
+#     print("##########################")
+#     csv_header = ['tweet_id', 'user_id', 'date', 'time', 'Likedby_id', 'Likedby_username', 'Likedby_name', 'tweetedby_name', 'tweetedby_id', 'tweetedby_username']
+#     with open('user_likes_retweets.csv', 'w', newline='', encoding='utf-8') as csvfile:
+#         writer = csv.DictWriter(csvfile, fieldnames=csv_header)
+#         writer.writeheader()
+#         writer.writerows(Main_Records)
+#     return send_file('user_likes_retweets.csv', as_attachment=True)
+
+
+import csv
 @app.route('/download_csv')
 def download_csv():
     global Main_Records
-    print("##########################")
-    print(Main_Records)
-    print("##########################")
-    csv_header = ['tweet_id', 'user_id', 'date', 'time', 'Likedby_id', 'Likedby_username', 'Likedby_name', 'tweetedby_name', 'tweetedby_id', 'tweetedby_username']
+    csv_header = ['user_id', 'tweet_id', 'tweet_text', 'date', 'time', 'Likedby_id', 'Likedby_username', 'Likedby_name']
     with open('user_likes_retweets.csv', 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_header)
         writer.writeheader()
-        writer.writerows(Main_Records)
+        for user_record in Main_Records:
+            for tweet_record in user_record['Tweets']:
+                writer.writerow({
+                    'user_id': user_record['user_id'],
+                    'tweet_id': tweet_record['tweet_id'],
+                    'tweet_text': tweet_record['tweet_text'],
+                    'date': tweet_record['date'],
+                    'time': tweet_record['time'],
+                    'Likedby_id': ', '.join(tweet_record['Likedby_id']),
+                    'Likedby_username': ', '.join(tweet_record['Likedby_username']),
+                    'Likedby_name': ', '.join(tweet_record['Likedby_name'])
+                })
     return send_file('user_likes_retweets.csv', as_attachment=True)
+
+
 
 @app.route('/download_json')
 def download_json():
