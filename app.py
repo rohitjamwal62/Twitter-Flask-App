@@ -99,7 +99,10 @@ def download_csv():
                     'time': tweet_record['time'],
                     'Likedby_id': ', '.join(tweet_record['Likedby_id']),
                     'Likedby_username': ', '.join(tweet_record['Likedby_username']),
-                    'Likedby_name': ', '.join(tweet_record['Likedby_name'])
+                    'Likedby_name': ', '.join(tweet_record['Likedby_name']),
+                    'tweetedby_name':', '.join(tweet_record['tweetedby_name']),
+                    'tweetedby_id': ', '.join(tweet_record['tweetedby_id']),
+                    'tweetedby_username': ', '.join(tweet_record['tweetedby_username'])
                 })
     return send_file('user_likes_retweets.csv', as_attachment=True)
 
