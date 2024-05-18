@@ -1,0 +1,52 @@
+[
+   {
+      "id": "1ZkKzbXyZvqKv",
+      "ended_at": "2022-07-20T14:54:06.000Z",
+      "creator_id": "274813051",
+      "speaker_ids": [
+         "1348000099",
+         "1529777916535619584",
+         "1481270879942234113",
+         "2895653115",
+         "1324599051170373632",
+         "399219925",
+         "785855606657781762",
+         "1363211410159923209",
+         "1460992501569961987",
+         "938077902419083267"
+      ],
+      "scheduled_start": "2022-07-20T14:00:00.000Z",
+      "invited_user_ids": [
+         "1460992501569961987",
+         "785855606657781762"
+      ],
+      "state": "ended",
+      "created_at": "2022-07-19T21:20:56.000Z",
+      "topic_ids": [
+         "848920371311001600",
+         "1357430100367605760",
+         "1357426041959026688"
+      ],
+      "title": "#SpacesResearch Thoughts on @HiCommunities x @TwitterSpaces",
+      "host_ids": [
+         "274813051",
+         "1460992501569961987"
+      ],
+      "lang": "en",
+      "started_at": "2022-07-20T14:02:23.000Z",
+      "updated_at": "2022-07-20T14:54:09.000Z",
+      "participant_count": 3197,
+      "total_speakers": 10,
+      "total_moderators": 2,
+      "topic_names": [
+         "Technology",
+         "UX design",
+         "Audiophiles"
+      ],
+      "topic_desc": [
+         "All about technology",
+         "Computer programming",
+         "Technology"
+      ]
+   }
+]

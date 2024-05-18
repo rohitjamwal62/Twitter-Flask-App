@@ -1,0 +1,42 @@
+[
+   {
+      "scheduled_start": "2024-02-08T23:30:00.000Z",
+      "creator_id": "1606047596434190336",
+      "title": "Kaiber Studio \u2728AI, Music, and Building Experiences",
+      "lang": "en",
+      "id": "1dRKZEVBoYgxB",
+      "participant_count": 56,
+      "state": "ended",
+      "host_ids": [
+         "1606047596434190336"
+      ],
+      "created_at": "2024-02-02T23:04:15.000Z",
+      "invited_user_ids": [
+         "1660770550258565120"
+      ],
+      "updated_at": "2024-02-09T00:21:27.000Z",
+      "topic_ids": [
+         "898262889378619392",
+         "1280550787207147521"
+      ],
+      "speaker_ids": [
+         "1660770550258565120",
+         "408688782"
+      ],
+      "total_speakers": 2,
+      "total_moderators": 1,
+      "topic_names": [
+         "Artificial intelligence",
+         "Arts & culture"
+      ],
+      "topic_desc": [
+         "Technology",
+         "All about arts and culture"
+      ],
+      "duration": "0:50:10",
+      "start_date": "2024-02-08",
+      "start_time": "23:31:16",
+      "end_date": "2024-02-09",
+      "end_time": "00:21:26"
+   }
+]

@@ -1,0 +1,106 @@
+[
+   {
+      "invited_user_ids": [
+         "1146942734978170881"
+      ],
+      "created_at": "2024-05-07T00:19:20.000Z",
+      "id": "1rmxPMemgyjKN",
+      "host_ids": [
+         "1463719737305669638",
+         "1598794971234148362",
+         "374338079"
+      ],
+      "creator_id": "1463719737305669638",
+      "speaker_ids": [
+         "374338079",
+         "1146942734978170881",
+         "1704283139202482176",
+         "1598794971234148362",
+         "1710100676242792448"
+      ],
+      "updated_at": "2024-05-07T05:25:07.000Z",
+      "state": "live",
+      "lang": "en",
+      "title": "$MMTLP The Twilight Zone - With Drama",
+      "participant_count": 51,
+      "total_speakers": 5,
+      "total_moderators": 3,
+      "start_date": "2024-05-07",
+      "start_time": "00:19:21"
+   },
+   {
+      "created_at": "2024-05-06T09:18:20.000Z",
+      "id": "1yNxaZvqaeQKj",
+      "host_ids": [
+         "954372098687930368"
+      ],
+      "creator_id": "954372098687930368",
+      "updated_at": "2024-05-07T05:23:19.000Z",
+      "topic_ids": [
+         "913142676819648512",
+         "781974596148793345",
+         "848920371311001600"
+      ],
+      "state": "scheduled",
+      "lang": "da",
+      "scheduled_start": "2024-05-09T18:00:00.000Z",
+      "title": "AMA - Jack Nikogosian ",
+      "participant_count": 0,
+      "total_moderators": 1,
+      "topic_names": [
+         "Cryptocurrencies",
+         "Business & finance",
+         "Technology"
+      ],
+      "topic_desc": [
+         "Business & finance",
+         "All about business & finance",
+         "All about technology"
+      ]
+   },
+   {
+      "created_at": "2024-05-03T21:03:50.000Z",
+      "id": "1RDGllvXWyVGL",
+      "host_ids": [
+         "1584567191432826882"
+      ],
+      "creator_id": "1584567191432826882",
+      "updated_at": "2024-05-07T05:23:19.000Z",
+      "topic_ids": [
+         "913142676819648512",
+         "1007360414114435072",
+         "1369311988040355840"
+      ],
+      "state": "scheduled",
+      "lang": "tr",
+      "scheduled_start": "2024-05-10T14:00:00.000Z",
+      "title": "AMA w/ @StableJack_xyz",
+      "participant_count": 0,
+      "total_moderators": 1,
+      "topic_names": [
+         "Cryptocurrencies",
+         "Bitcoin cryptocurrency",
+         "NFTs"
+      ],
+      "topic_desc": [
+         "Business & finance",
+         "Cryptocurrency",
+         "Digital assets"
+      ]
+   },
+   {
+      "created_at": "2024-05-07T05:17:37.000Z",
+      "id": "1MYGNodqqzyJw",
+      "host_ids": [
+         "1429665574926397442"
+      ],
+      "creator_id": "1429665574926397442",
+      "updated_at": "2024-05-07T05:23:19.000Z",
+      "state": "scheduled",
+      "lang": "en",
+      "scheduled_start": "2024-05-09T23:00:00.000Z",
+      "title": "astrology & rap beef",
+      "participant_count": 0,
+      "total_moderators": 1
+   }
+]

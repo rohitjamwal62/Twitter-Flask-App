@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Twitter Spaces Bot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+    <nav class="bg-purple-600 p-4">
+        <div class="container mx-auto text-white flex justify-between items-center">
+            <p class="text-2xl">Twitter Spaces Bot</p>
+            <div class="flex space-x-4">
+                <a href="/"
+                    class="text-white text-lg hover:underline py-2 px-4 bg-purple-500 rounded-t-lg nav-tab">Home</a>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mx-auto mt-8 max-w-md">
+
+        <form id="searchForm" method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+                <p>{{ message }}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="searchValue">
+                    Enter Twitter Space ID/Space Title/Creator Id
+                </label>
+                <input
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="searchValue" type="text" placeholder="Space Id/Title/Creator Id" value="{{ search_term }}"
+                    name="search_term">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">
+                    Search By
+                </label>
+                <input type="radio" id="searchById" name="searchOption" value="space_id" class="mr-1" checked>
+                <label for="searchById" class="mr-4">Space Id</label>
+                <input type="radio" id="searchByTitle" name="searchOption" value="space_title" class="mr-1">
+                <label for="searchByTitle">Space Title</label>
+                <input type="radio" id="searchByCreator" name="searchOption" value="creator_id" class="mr-1">
+                <label for="searchByCreator">Creator Id</label>
+            </div>
+            {% if error_message %}
+            <div class="error-message">
+                <p>{{ error_message }}</p>
+            </div>
+            {% endif %}
+
+            <div class="flex items-center justify-between">
+                <button
+                    class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="button" id="submitButton">
+                    <i id="spinner" class="fas fa-spinner fa-spin" style="display: none;"></i>
+                    Search
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+    <script>
+        // Event listener for the enter key press in the input field
+        document.getElementById('searchValue').addEventListener('keypress', function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault(); // Prevent the default form submission
+                document.getElementById('submitButton').click(); // Trigger the search button click
+            }
+        });
+        document.getElementById('submitButton').addEventListener('click', function () {
+            var form = document.getElementById('searchForm');
+            var spaceOption = document.querySelector('input[name="searchOption"]:checked').value;
+            var searchValue = document.getElementById('searchValue').value.trim();
+            // Check if the searchValue input is blank
+            if (searchValue === '') {
+                // Display an error message
+                var errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4';
+                errorMessageDiv.setAttribute('role', 'alert');
+                errorMessageDiv.innerHTML = '<p>Please enter a search term.</p>';
+
+                // Insert the error message before the search form
+                form.parentNode.insertBefore(errorMessageDiv, form);
+
+                // Hide the spinner if it's visible
+                document.getElementById('spinner').style.display = 'none';
+
+                // Stop the form submission
+                return;
+            }
+
+            // Show the spinner
+            document.getElementById('spinner').style.display = 'inline-block';
+            form.action = '/searchSpaces';
+
+            // Create a URLSearchParams object
+            var params = new URLSearchParams();
+            params.append('by', spaceOption);
+
+            // Append the query string to the form's action
+            form.action += '?' + params.toString();
+
+            // Submit the form
+            form.submit();
+        });
+        // Hide the spinner when the page is about to unload
+        window.oncancel = function () {
+            var spinner = document.getElementById('spinner');
+            spinner.style.display = 'none';
+        };
+    </script>
+
+</body>
+
+</html>

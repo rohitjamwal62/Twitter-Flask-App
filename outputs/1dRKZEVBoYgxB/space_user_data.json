@@ -1,0 +1,74 @@
+[
+   {
+      "space_id": "1dRKZEVBoYgxB",
+      "user_id": "1606047596434190336",
+      "name": "Kaiber",
+      "username": "KaiberAI",
+      "location": "",
+      "protected": false,
+      "public_metrics": {
+         "followers_count": 20247,
+         "following_count": 239,
+         "tweet_count": 953,
+         "listed_count": 345,
+         "like_count": 2424
+      },
+      "pinned_tweet_id": "1785759271864406337",
+      "description": "An AI creative lab. Discover the artist within.\n\nNow available on Android and iOS. Download: https://t.co/VP2Fd9Z1hs",
+      "url": "https://t.co/VP2Fd9Z1hs",
+      "created_at_date": "2022-12-22",
+      "created_at_time": "22:03:37",
+      "followers": [],
+      "following": [],
+      "followers_from_current_space": [],
+      "following_from_current_space": []
+   },
+   {
+      "space_id": "1dRKZEVBoYgxB",
+      "user_id": "1660770550258565120",
+      "name": "Jacky Lu",
+      "username": "jackylu_",
+      "location": "",
+      "protected": false,
+      "public_metrics": {
+         "followers_count": 46,
+         "following_count": 13,
+         "tweet_count": 0,
+         "listed_count": 0,
+         "like_count": 7
+      },
+      "pinned_tweet_id": "",
+      "description": "learn to work the saxophone, \ni'll play just what I feel\n\nCo-Founder, Head of Creative @ https://t.co/lvB759TCEm",
+      "url": "",
+      "created_at_date": "2023-05-22",
+      "created_at_time": "22:12:16",
+      "followers": [],
+      "following": [],
+      "followers_from_current_space": [],
+      "following_from_current_space": []
+   },
+   {
+      "space_id": "1dRKZEVBoYgxB",
+      "user_id": "408688782",
+      "name": "kyt",
+      "username": "kyttenjanae",
+      "location": "\u1d0f\u0274\u029f\u026a\u0274\u1d07",
+      "protected": false,
+      "public_metrics": {
+         "followers_count": 12355,
+         "following_count": 1712,
+         "tweet_count": 13402,
+         "listed_count": 237,
+         "like_count": 29789
+      },
+      "pinned_tweet_id": "1648474039906897921",
+      "description": "artist / alchemist\n\nHead of Studio at @kaiberAI\nexpressive emergent technologies\nbuilding mind bicycles \n\n\u2022 she/they | kyt@daisy.studio",
+      "url": "https://t.co/St30wgGACa",
+      "created_at_date": "2011-11-09",
+      "created_at_time": "19:17:55",
+      "followers": [],
+      "following": [],
+      "followers_from_current_space": [],
+      "following_from_current_space": []
+   }
+]
