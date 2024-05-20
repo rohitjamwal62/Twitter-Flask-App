@@ -1,4 +1,6 @@
 import requests,json,os,configparser
+from typing import List, Dict, Any
+data_list = list()
 
 config_file = os.path.abspath('./dev_mode.ini' if os.path.exists('./dev_mode.ini') else './config.ini')
 config = configparser.ConfigParser()
@@ -36,22 +38,40 @@ def Get_Retweet(tweet_id):
         if liking_users_response.json().get('meta'):
             tweet_data = liking_users_response.json().get('meta').get('result_count')
             if tweet_data == 0:
-                context = {"tweetedby_id" : '',"tweetedby_name" : '',"tweetedby_username" : ''}
+                context = {"retweetedby_id" : '',"retweetedby_name" : '',"retweetedby_username" : ''}
                 store_list.append(context)
         for tweet in response:
-            context = {"tweetedby_id" : tweet.get('id'),"tweetedby_name" : tweet.get('name'),"tweetedby_username" : tweet.get('username')}
+            context = {"retweetedby_id" : tweet.get('id'),"retweetedby_name" : tweet.get('name'),"retweetedby_username" : tweet.get('username')}
             store_list.append(context)
     else:
         print("Error Retweet:", liking_users_response.status_code)
-        context = {"tweetedby_id" : '',"tweetedby_name" : '',"tweetedby_username" : ''}
+        context = {"retweetedby_id" : '',"retweetedby_name" : '',"retweetedby_username" : ''}
         store_list.append(context)
     return store_list
 
-def Get_Tweet(*args):
-    url = f"https://api.twitter.com/2/users/{args[0]}/tweets"
-    headers = {'Authorization': f'Bearer {BEARER_TOKEN}','Content-Type': 'application/json'}
-    response = requests.request("GET", url, headers=headers)
-    if response.status_code == 200:
-        records = json.loads(response.text).get('data')
-        data = [[rec.get('id'), rec.get('text')] for rec in records]
-        return data
+
+def read_output_file(space_id: str, data_list: List[Dict[str, Any]]) -> None:
+    file_path = os.path.join('output', space_id, 'user_topic_descriptions.json')
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            read_json = file.read()
+            json_records = json.loads(read_json)
+            for key, value in json_records.items():
+                for tweet_data in value:
+                    user_id = tweet_data.get('user_id')
+                    tweet_id = tweet_data.get('tweet_id')
+                    tweet_text = tweet_data.get('tweet_text')
+                    date = tweet_data.get('date')
+                    time = tweet_data.get('time')
+                    # Append the relevant data to the list
+                    data_list.append({
+                        'user_id': user_id,
+                        'tweet_id': tweet_id,
+                        'tweet_text': tweet_text,
+                        'date': date,
+                        'time': time
+                    })
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+    except IOError as e:
+        print(f"An error occurred while reading the file: {e}")

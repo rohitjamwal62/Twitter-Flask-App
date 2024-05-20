@@ -17,7 +17,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from dependencies.sprint import *
 from definitions.functions import *
 from definitions.scraper import *
-from twitter_API import Get_Likes,Get_Retweet
+from twitter_API import Get_Likes,Get_Retweet,read_output_file,data_list
 #! INTERNAL STUFF BELOW DO NOT MODIFY
 from itertools import zip_longest
 
@@ -67,18 +67,33 @@ def homes():
     """
     return render_template('index.html')
 
+
 @app.route('/download_csv')
 def download_csv():
     global Main_Records
-    print("##########################")
-    print(Main_Records)
-    print("##########################")
-    csv_header = ['tweet_id', 'user_id', 'date', 'time', 'Likedby_id', 'Likedby_username', 'Likedby_name', 'tweetedby_name', 'tweetedby_id', 'tweetedby_username']
+    print(Main_Records,"+++++++++++++++")
+    csv_header = ['tweet_id', 'tweet_text', 'date', 'time', 'Likedby_id', 'Likedby_username', 'Likedby_name', 'retweetedby_name', 'retweetedby_id', 'retweetedby_username']
     with open('user_likes_retweets.csv', 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_header)
         writer.writeheader()
-        writer.writerows(Main_Records)
+        for tweet_csv in Main_Records:
+            for user_id, tweets in tweet_csv.items():
+                for tweet_data in tweets:
+                    writer.writerow({
+                        'tweet_id': tweet_data['tweet_id'],
+                        'tweet_text': tweet_data['tweet_text'],
+                        'date': tweet_data['date'],
+                        'time': tweet_data['time'],
+                        'Likedby_id': ','.join(tweet_data['Likedby_id']),
+                        'Likedby_username': ','.join(tweet_data['Likedby_username']),
+                        'Likedby_name': ','.join(tweet_data['Likedby_name']),
+                        'retweetedby_name': ','.join(tweet_data['retweetedby_name']),
+                        'retweetedby_id': ','.join(tweet_data['retweetedby_id']),
+                        'retweetedby_username': ','.join(tweet_data['retweetedby_username'])
+                    })
+                    
     return send_file('user_likes_retweets.csv', as_attachment=True)
+
 
 @app.route('/download_json')
 def download_json():
@@ -89,6 +104,7 @@ def download_json():
 
 @app.route('/searchSpaces', methods=['GET', 'POST'])
 def search_spaces():
+    data_list = list()
     global search_term, spacedata_json_file, user_topic_descriptions_json_file,Main_Records
     #* Getting Params
     quick_mode = request.args.get('quick_mode')
@@ -131,53 +147,75 @@ def search_spaces():
                 #create search_term directory inside OUTPUT_DIR
                 if not os.path.exists(os.path.join(OUTPUT_DIR,search_term)):
                     os.mkdir(os.path.join(OUTPUT_DIR,search_term))
-                    
                 data = response.json()
                 
                 print("#########################################################################")
-                # rec = data.get('includes').get('users')
-                # for i in rec:
-                #     print(i)
-                Tweet = [[ i.get('id'),i.get('pinned_tweet_id'),i.get('created_at')] for i in data.get('includes').get('users') if i.get('id') is not None and i.get('pinned_tweet_id') is not None]
-                for Tweets in Tweet:
-                    User_Id = Tweets[0]
-                    Tweet_Id = int(Tweets[1])
-                    Date_Time = Tweets[2]
-                    date_str = str(Date_Time).split("T")[0].replace('-','/')
-                    Time = str(Date_Time).split("T")[1].split(".")[0]
-                    date_obj = datetime.strptime(date_str, '%Y/%m/%d')
-                    # Format the date object to the desired format '09/04/2024'
-                    Date = date_obj.strftime('%m/%d/%Y')
+                # *************************************  Rekha Code Start Here  ********************************************
+                Space_Id_Store_Here = search_term
+                print("Space Id : ",Space_Id_Store_Here)
+                read_output_file(Space_Id_Store_Here, data_list)
+                print("data_list hai bro ye.............",data_list)
+                user_tweets = list()
+                tweet_data_dict = dict()
+                unique_tweet_ids = set()
+                for tweet in data_list:
+                    Tweet_Id = tweet.get('tweet_id')
+                    if Tweet_Id in unique_tweet_ids:
+                        continue  # Skip this tweet if it's a duplicate
+                    unique_tweet_ids.add(Tweet_Id)
+
+                    user_id =  tweet.get('user_id')
+                    tweet_text = tweet.get('tweet_text')
+                    date = tweet.get('date')
+                    time = tweet.get('time')
                     Like_users = Get_Likes(Tweet_Id)
                     Retweet_users = Get_Retweet(Tweet_Id)
-                    for likes, tweet in zip_longest(Like_users, Retweet_users):
-                        print("################### : ",likes,"## likes  ###################  tweet   ##", tweet," : ###################")
-                        data_Twitter = dict()
-                        data_Twitter['tweet_id'] = Tweet_Id 
-                        data_Twitter['user_id'] =  User_Id
-                        # data_Twitter['tweet_text'] = 
-                        data_Twitter['date'] = Date
-                        data_Twitter['time'] = Time
+                    tweet_data = {
+                        "tweet_id": Tweet_Id,
+                        "tweet_text": tweet_text,
+                        "date": date,
+                        "time": time,
+                        "Likedby_id": [],
+                        "Likedby_username": [],
+                        "Likedby_name": [],
+                        "retweetedby_name": [],
+                        "retweetedby_id": [],
+                        "retweetedby_username": []
+                    }
+                    if Like_users is not None:
+                        liked_by_ids = [like.get('Likedby_id', '') for like in Like_users]
+                        liked_by_usernames = [like.get('Likedby_username', '') for like in Like_users]
+                        liked_by_names = [like.get('Likedby_name', '') for like in Like_users]
+                        tweet_data['Likedby_id'] = liked_by_ids
+                        tweet_data['Likedby_username'] = liked_by_usernames
+                        tweet_data['Likedby_name'] = liked_by_names
+                    if Retweet_users is not None:
+                        retweeted_by_ids = [retweet.get('retweetedby_id', '') for retweet in Retweet_users]
+                        retweeted_by_usernames = [retweet.get('retweetedby_username', '') for retweet in Retweet_users]
+                        retweeted_by_names = [retweet.get('retweetedby_name', '') for retweet in Retweet_users]
+                        tweet_data['retweetedby_id'] = retweeted_by_ids
+                        tweet_data['retweetedby_username'] = retweeted_by_usernames
+                        tweet_data['retweetedby_name'] = retweeted_by_names
+                    
+                    else:
+                        tweet_data['Likedby_id'] = []
+                        tweet_data['Likedby_username'] = []
+                        tweet_data['Likedby_name'] = []
+                        tweet_data['retweetedby_id'] = []
+                        tweet_data['retweetedby_username'] = []
+                        tweet_data['retweetedby_name'] = []
 
-                        if likes is not None:
-                            data_Twitter['Likedby_id'] = likes.get('Likedby_id','')
-                            data_Twitter['Likedby_username'] = likes.get('Likedby_username','')
-                            data_Twitter['Likedby_name'] = likes.get('Likedby_name','')
-                        else:
-                            data_Twitter['Likedby_id'] = ''
-                            data_Twitter['Likedby_username'] = ''
-                            data_Twitter['Likedby_name'] = ''
-                        if tweet is not None:
-                            data_Twitter['tweetedby_name'] = tweet.get('tweetedby_name','')
-                            data_Twitter['tweetedby_id'] = tweet.get('tweetedby_id','')
-                            data_Twitter['tweetedby_username'] = tweet.get('tweetedby_username','')
-                        else:
-                            # Handle the case where tweet is None
-                            data_Twitter['tweetedby_name'] = '' 
-                            data_Twitter['tweetedby_id'] = ''
-                            data_Twitter['tweetedby_username'] = ''
-                        Main_Records.append(data_Twitter)
+    
+                    if user_id not in tweet_data_dict:
+                        tweet_data_dict[user_id] = []
+
+                    tweet_data_dict[user_id].append(tweet_data)
+                 
+                Main_Records.append(tweet_data_dict)     
+                print("\n")
                 print("#########################################################################")
+                # *************************************   Rekha Code End Here   ********************************************
+                
                 #* Detect errors 
                 if "errors" in data:
                     return render_template('index.html', error_message=str(data["errors"][0]["detail"]), search_term=search_term)
@@ -321,7 +359,7 @@ def get_space_data():
     file = os.path.join(OUTPUT_DIR,search_term,"space_data.json")
     data = {}
     if os.path.exists(file):
-        with open(file, 'r') as f:
+        with open(file, 'r',encoding='utf-8') as f:
             data = json.load(f)
     return jsonify(data)
 
@@ -330,7 +368,7 @@ def get_space_user_data():
     file = os.path.join(OUTPUT_DIR,search_term,"space_user_data.json")
     data = {}
     if os.path.exists(file):
-        with open(file, 'r') as f:
+        with open(file, 'r',encoding='utf-8') as f:
             data = json.load(f)
     return jsonify(data)
 
@@ -339,7 +377,7 @@ def annotation():
     file = os.path.join(OUTPUT_DIR,search_term,"user_topic_descriptions.json")
     data = {}
     if os.path.exists(file):
-        with open(file, 'r') as f:
+        with open(file, 'r',encoding='utf-8') as f:
             data = json.load(f)
     return jsonify(data)
 
