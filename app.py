@@ -55,7 +55,7 @@ app.secret_key = secrets.token_hex(24)
 
 scheduler = BackgroundScheduler()
 scheduler.start()
-
+UserId_Store = list()
 Main_Records = list()
 @app.route('/',)
 def homes():
@@ -67,19 +67,21 @@ def homes():
     """
     return render_template('index.html')
 
-
 @app.route('/download_csv')
 def download_csv():
-    global Main_Records
-    print(Main_Records,"+++++++++++++++")
-    csv_header = ['tweet_id', 'tweet_text', 'date', 'time', 'Likedby_id', 'Likedby_username', 'Likedby_name', 'retweetedby_name', 'retweetedby_id', 'retweetedby_username']
-    with open('user_likes_retweets.csv', 'w', newline='', encoding='utf-8') as csvfile:
+    global Main_Records,UserId_Store
+    output_folder = f'output/{UserId_Store[0]}'
+    os.makedirs(output_folder, exist_ok=True)  # Create the folder if it doesn't exist
+    csv_header = ['User_Id', 'tweet_id', 'tweet_text', 'date', 'time', 'Likedby_id', 'Likedby_username', 'Likedby_name', 'retweetedby_name', 'retweetedby_id', 'retweetedby_username']
+    csv_file_path = os.path.join(output_folder, 'user_likes_retweets.csv')
+    with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_header)
         writer.writeheader()
         for tweet_csv in Main_Records:
             for user_id, tweets in tweet_csv.items():
                 for tweet_data in tweets:
                     writer.writerow({
+                        'User_Id': user_id,
                         'tweet_id': tweet_data['tweet_id'],
                         'tweet_text': tweet_data['tweet_text'],
                         'date': tweet_data['date'],
@@ -92,20 +94,23 @@ def download_csv():
                         'retweetedby_username': ','.join(tweet_data['retweetedby_username'])
                     })
                     
-    return send_file('user_likes_retweets.csv', as_attachment=True)
-
+    return send_file(csv_file_path, as_attachment=True)
 
 @app.route('/download_json')
 def download_json():
-    global Main_Records
-    with open('user_likes_retweets.json', 'w') as jsonfile:
+    global Main_Records,UserId_Store
+    output_folder = f'output/{UserId_Store[0]}'
+    os.makedirs(output_folder, exist_ok=True)  # Create the folder if it doesn't exist
+    json_file_path = os.path.join(output_folder, 'user_likes_retweets.json')
+    with open(json_file_path, 'w') as jsonfile:
         json.dump(Main_Records, jsonfile, indent=4)
-    return send_file('user_likes_retweets.json', as_attachment=True)
+    return send_file(json_file_path, as_attachment=True)
 
 
 # *************************************  Rekha Code Start Here  ********************************************
 def Retweet_Likes(search_term):
     Space_Id_Store_Here = search_term
+    UserId_Store.append(Space_Id_Store_Here)  
     print("Space Id : ",Space_Id_Store_Here)
     read_output_file(Space_Id_Store_Here, data_list)
     tweet_data_dict = dict()
@@ -123,6 +128,7 @@ def Retweet_Likes(search_term):
         Like_users = Get_Likes(Tweet_Id)
         Retweet_users = Get_Retweet(Tweet_Id)
         tweet_data = {
+            "user_id": user_id,
             "tweet_id": Tweet_Id,
             "tweet_text": tweet_text,
             "date": date,
@@ -162,7 +168,8 @@ def Retweet_Likes(search_term):
             tweet_data_dict[user_id] = []
 
         tweet_data_dict[user_id].append(tweet_data)
-    Main_Records.append(tweet_data_dict)     
+    Main_Records.append(tweet_data_dict)   
+    
 
     # *************************************   Rekha Code End Here   ********************************************
 
@@ -170,7 +177,7 @@ def Retweet_Likes(search_term):
 @app.route('/searchSpaces', methods=['GET', 'POST'])
 def search_spaces():
     data_list = list()
-    global search_term, spacedata_json_file, user_topic_descriptions_json_file,Main_Records
+    global search_term, spacedata_json_file, user_topic_descriptions_json_file,Main_Records,UserId_Store
     #* Getting Params
     quick_mode = request.args.get('quick_mode')
     search_by = request.args.get('by')
