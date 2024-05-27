@@ -20,7 +20,8 @@ def countdown(seconds):
 
 def handle_rate_limit(response):
     if response.status_code == 429:
-        print(f"Rate limit exceeded. Pausing for {countdown(REQUEST_WINDOW)}")
+        print(f"Rate limit exceeded. Pausing for 15 minutes")
+        countdown(REQUEST_WINDOW)
         return True  # Indicate rate limit hit
     return False  # Rate limit not hit
 
